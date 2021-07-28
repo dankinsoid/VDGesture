@@ -35,12 +35,12 @@ extension Gestures {
         public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
             let result = wrapped.recognize(gesture: gesture, state: &state.wrapped)
             guard result != .failed else { return .failed }
-            if result == .valid, state.startLocation == nil {
+            if result == .valid, state.startLocation == nil, gesture.state != .possible {
                 state.startLocation = gesture.location()
                 return .valid
             }
-            guard let startLocation = state.startLocation else {
-                return .failed
+            guard let startLocation = state.startLocation, result != .none, gesture.state != .possible else {
+                return .none
             }
             let location = gesture.location()
             state.maxDistance = CGPoint(
@@ -49,10 +49,14 @@ extension Gestures {
             )
             if result == .finished {
                 if state.maxDistance.x < min.x || state.maxDistance.y < min.y {
+                    gesture.debugFail(of: Self.self, reason: "Too small movement")
                     return .failed
                 }
             }
             if state.maxDistance.x > max.x || state.maxDistance.y > max.y {
+                if failOnExcess {
+                    gesture.debugFail(of: Self.self, reason: "Too large movement \(state.maxDistance)")
+                }
                 return failOnExcess ? .failed : .finished
             }
             return result

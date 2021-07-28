@@ -9,10 +9,9 @@ import UIKit
 
 extension Gestures {
     
-    @available(iOS 13.0.0, *)
     public struct Tap: ComposedGesture {
         
-        public var body: some GestureType {
+        public var body: Gestures.Duration<Gestures.Length<Gestures.Press>, PartialRangeThrough<TimeInterval>> {
             Press()
                 .maxLength(CGPoint(x: 20, y: 20))
                 .duration(...0.3, finishOnTouchUp: true)

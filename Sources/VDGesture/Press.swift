@@ -16,16 +16,20 @@ public enum Gestures {
         public init() {}
         
         public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-            if gesture.state == .began || gesture.state == .changed {
+            switch gesture.state {
+            case .began, .changed:
                 state.wasValid = true
-            }
-            if gesture.state == .ended && !state.wasValid || gesture.state == .cancelled || gesture.state == .failed {
+                return .valid
+            case .possible:
+                return .none
+            case .ended:
+                return .finished
+            case .cancelled, .failed:
+                gesture.debugFail(of: Self.self, reason: "Failed")
+                return .failed
+            @unknown default:
                 return .failed
             }
-            if gesture.state == .ended, state.wasValid {
-                return .finished
-            }
-            return .valid
         }
         
         public struct State {

@@ -8,29 +8,39 @@
 import UIKit
 
 extension UIView {
-    public func add<G: GestureType>(gesture: G) {
-        addGestureRecognizer(VDGestureRecognizer(gesture))
+    public func add<G: GestureType>(gesture: G, file: String = #file, line: UInt = #line) {
+        addGestureRecognizer(VDGestureRecognizer(gesture, file: file, line: line))
+    }
+    
+    public func add<G: GestureType>(file: String = #file, line: UInt = #line, gesture: () -> G) {
+        add(gesture: gesture(), file: file, line: line)
     }
 }
 
 protocol UpdatableRecognizer: UIGestureRecognizer {
-    func update()
+    func update(after interval: TimeInterval)
     func velocity() -> CGPoint
     func velocity(of touch: Int) -> CGPoint
+    func set(debugRemark: String)
 }
 
 final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecognizer, UIGestureRecognizerDelegate, UpdatableRecognizer {
 
     var gesture: Gesture
     private lazy var gestureState = gesture.initialState
+    private var debugFile: String
+    private var debugLine: UInt
     private var isFinished = false
     private var lastLocations: [Int?: TouchLocation] = [:]
+    private var timers: [Timer] = []
     private var context: GestureContext {
         GestureContext(recognizer: self)
     }
     
-    init(_ gesture: Gesture) {
+    init(_ gesture: Gesture, file: String, line: UInt) {
         self.gesture = gesture
+        debugFile = (file as NSString).lastPathComponent
+        debugLine = line
         super.init(target: nil, action: nil)
         minimumPressDuration = 0
         delegate = self
@@ -39,12 +49,18 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
     
     @objc
     private func handle() {
-        if isFinished, state == .cancelled {
-            isFinished = false
+        update(skipPossible: true)
+    }
+    
+    private func update(skipPossible: Bool) {
+        if skipPossible, state == .possible {
             return
         }
-        if state == .possible {
-            return
+        if isFinished {
+            isFinished = false
+            if state == .cancelled {
+                return
+            }
         }
         switch gesture.recognize(gesture: context, state: &gestureState) {
         case .valid:
@@ -55,7 +71,11 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
                     lastLocations[$0] = TouchLocation(point: location(ofTouch: $0, in: nil), time: Date())
                 }
             }
+        case .none:
+            break
         case .failed, .finished:
+            timers.forEach { $0.invalidate() }
+            timers = []
             gestureState = gesture.initialState
             lastLocations = [:]
             isFinished = true
@@ -64,8 +84,17 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
         }
     }
     
-    func update() {
-        handle()
+    func update(after interval: TimeInterval) {
+        if interval == 0 {
+            update(skipPossible: isFinished)
+        } else {
+            timers.append(
+                Timer.scheduledTimer(withTimeInterval: interval, repeats: false) {[weak self] in
+                    guard $0.isValid else { return }
+                    self?.update(skipPossible: self?.isFinished ?? false)
+                }
+            )
+        }
     }
     
     func velocity() -> CGPoint {
@@ -88,6 +117,14 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
         )
     }
  
+    func set(debugRemark: String) {
+        #if DEBUG
+        if gesture.config.enableDebug {
+            print("Gesture(\(debugFile) \(debugLine)) | \(debugRemark)")
+        }
+        #endif
+    }
+    
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         true
     }
@@ -109,7 +146,7 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
     
     @available(iOS 3.2, *)
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        true
+        !gesture.config.ignoreSubviews || touch.view === gestureRecognizer.view
     }
     
     @available(iOS 9.0, *)
@@ -120,6 +157,10 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
     @available(iOS 13.4, *)
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive event: UIEvent) -> Bool {
         true
+    }
+    
+    deinit {
+        timers.forEach { $0.invalidate() }
     }
 }
 

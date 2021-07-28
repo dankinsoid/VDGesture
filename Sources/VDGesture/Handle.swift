@@ -68,6 +68,8 @@ extension Gestures {
                     onChange?(gesture)
                 }
                 state.wasBegun = true
+            case .none:
+                return .none
             }
             return result
         }

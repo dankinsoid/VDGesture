@@ -23,10 +23,6 @@ let package = Package(
         .target(
             name: "VDGesture",
             dependencies: []
-        ),
-        .testTarget(
-            name: "VDGestureTests",
-            dependencies: ["VDGesture"]
-        ),
+        )
     ]
 )

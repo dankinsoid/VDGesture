@@ -8,5 +8,5 @@
 import Foundation
 
 public enum GestureState {
-    case failed, finished, valid
+    case failed, finished, valid, none
 }

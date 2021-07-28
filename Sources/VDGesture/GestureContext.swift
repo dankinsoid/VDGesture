@@ -12,8 +12,8 @@ public struct GestureContext {
     
     public var state: UIGestureRecognizer.State { recognizer.state }
     
-    public func update() {
-        recognizer.update()
+    public func update(after interval: TimeInterval) {
+        recognizer.update(after: interval)
     }
     
     public func location(of touch: Int, in view: UIView? = nil) -> CGPoint {
@@ -38,5 +38,13 @@ public struct GestureContext {
     
     public var velocity: CGPoint {
         recognizer.velocity()
+    }
+    
+    public func set(debugRemark: String) {
+        recognizer.set(debugRemark: debugRemark)
+    }
+    
+    public func debugFail<G: GestureType>(of type: G.Type, reason: String) {
+        set(debugRemark: "\(type): '\(reason)'")
     }
 }

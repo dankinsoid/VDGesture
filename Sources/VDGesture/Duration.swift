@@ -35,44 +35,47 @@ extension Gestures {
                 state.startDate = Date()
                 updateLater(context: gesture)
             }
-            guard let date = state.startDate, wrappedResult != .failed else { return .failed }
-            switch gesture.state {
-            case .changed:
-                if range.contains(Date().timeIntervalSince(date)) {
-                    state.wasValid = true
-                    return wrappedResult
-                } else if !state.wasValid {
-                    return wrappedResult == .finished ? .failed : wrappedResult
-                } else if !finishOnTouchUp {
-                    return .finished
-                } else {
-                    return .failed
-                }
-            case .ended:
-                if range.contains(Date().timeIntervalSince(date)) {
-                    return .finished
-                } else {
-                    return .failed
-                }
+            guard let date = state.startDate else {
+                return .none
+            }
+            switch wrappedResult {
             case .failed:
                 return .failed
-            default:
-                return wrappedResult
+            case .finished:
+                let interval = Date().timeIntervalSince(date)
+                if range.contains(interval) {
+                    return .finished
+                } else {
+                    gesture.debugFail(of: Self.self, reason: "Incorrect interval \(interval)")
+                    return .failed
+                }
+            case .valid:
+                let interval = Date().timeIntervalSince(date)
+                if range.contains(interval) {
+                    state.wasValid = true
+                    return .valid
+                } else if let max = range.max, max <= interval {
+                    if finishOnTouchUp {
+                        gesture.debugFail(of: Self.self, reason: "Too slow: \(interval)")
+                        return .failed
+                    } else {
+                        return .finished
+                    }
+                } else {
+                    state.wasValid = true
+                    return .valid
+                }
+            case .none:
+                return .none
             }
         }
         
         private func updateLater(context: GestureContext) {
             if let lower = range.min {
-                startTimer(interval: lower, context: context)
+                context.update(after: lower)
             }
             if let upper = range.max {
-                startTimer(interval: upper, context: context)
-            }
-        }
-        
-        private func startTimer(interval: TimeInterval, context: GestureContext) {
-            Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { _ in
-                context.update()
+                context.update(after: upper)
             }
         }
         

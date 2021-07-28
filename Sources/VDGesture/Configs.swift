@@ -8,7 +8,11 @@
 import Foundation
 
 public struct GestureConfig {
+    public var ignoreSubviews = false
     public var recognizeSimultaneously = false
+    public var enableDebug = false
+    
+    public init() {}
     
     public func apply(_ action: (inout GestureConfig) -> Void) -> GestureConfig {
         var result = self
@@ -26,6 +30,18 @@ extension GestureType {
     public func recognizeSimultaneously(_ recognize: Bool) -> Gestures.Config<Self> {
         config {
             $0.recognizeSimultaneously = recognize
+        }
+    }
+    
+    public func ignoreSubviews(_ ignore: Bool) -> Gestures.Config<Self> {
+        config {
+            $0.ignoreSubviews = ignore
+        }
+    }
+    
+    public func enableDebug(_ enable: Bool) -> Gestures.Config<Self> {
+        config {
+            $0.enableDebug = enable
         }
     }
 }
