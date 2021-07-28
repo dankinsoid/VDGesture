@@ -40,7 +40,7 @@ extension Gestures {
         }
         
         public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-            let result = wrapped.recognize(gesture: gesture, state: &state.wrapped)
+            let result = wrapped.reduce(gesture: gesture, state: &state.wrapped)
             if result == .failed || result == .finished {
                 state.wrapped = wrapped.initialState
             }

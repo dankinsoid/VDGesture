@@ -40,7 +40,7 @@ extension Gestures {
         public static func recognize<First: GestureType, Second: GestureType>(_ first: First, _ second: Second, context: GestureContext, state: inout Gestures.Pare<First, Second, Substate>.State) -> GestureState {
             switch state.substate.firstTime {
             case nil:
-                let result = first.recognize(gesture: context, state: &state.first)
+                let result = first.reduce(gesture: context, state: &state.first)
                 if result == .failed || result == .finished {
                     state.first = first.initialState
                 }
@@ -53,10 +53,7 @@ extension Gestures {
                 }
                 return result
             case .some(let time):
-                let result = second.recognize(gesture: context, state: &state.second)
-                if result == .failed || result == .finished {
-                    state.second = second.initialState
-                }
+                let result = second.reduce(gesture: context, state: &state.second)
                 if result != .failed, result != .finished, !state.substate.secondStarted {
                     let interval = Date().timeIntervalSince(time)
                     if result == .valid {

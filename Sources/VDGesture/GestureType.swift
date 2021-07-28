@@ -16,6 +16,15 @@ public protocol GestureType {
 }
 
 extension GestureType {
+    
+    public func reduce(gesture: GestureContext, state: inout State) -> GestureState {
+        let result = recognize(gesture: gesture, state: &state)
+        if result == .finished || result == .failed {
+            state = initialState
+        }
+        return result
+    }
+    
     public func any() -> AnyGesture {
         AnyGesture(self)
     }
