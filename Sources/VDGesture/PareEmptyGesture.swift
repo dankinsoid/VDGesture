@@ -16,7 +16,7 @@ public struct PareEmptyGesture<Substate>: PareGestureType {
         self.initialSubstate = initialSubstate
     }
     
-    public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
+    public func recognize(context: GestureContext, state: inout State) -> GestureState {
         .finished
     }
     

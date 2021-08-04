@@ -18,6 +18,7 @@ extension UIView {
 }
 
 protocol UpdatableRecognizer: UIGestureRecognizer {
+    var touches: Set<UITouch> { get }
     func update(after interval: TimeInterval)
     func velocity() -> CGPoint
     func velocity(of touch: Int) -> CGPoint
@@ -33,6 +34,7 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
     private var isFinished = false
     private var lastLocations: [Int?: TouchLocation] = [:]
     private var timers: [Timer] = []
+    var touches: Set<UITouch> = []
     private var context: GestureContext {
         GestureContext(recognizer: self)
     }
@@ -62,7 +64,7 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
                 return
             }
         }
-        switch gesture.recognize(gesture: context, state: &gestureState) {
+        switch gesture.reduce(context: context, state: &gestureState) {
         case .valid:
             lastLocations = [:]
             lastLocations[nil] = TouchLocation(point: location(in: nil), time: Date())
@@ -76,7 +78,7 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
         case .failed, .finished:
             timers.forEach { $0.invalidate() }
             timers = []
-            gestureState = gesture.initialState
+            touches = []
             lastLocations = [:]
             isFinished = true
             isEnabled = false
@@ -103,6 +105,21 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
     
     func velocity(of touch: Int) -> CGPoint {
         velocity(touch: touch)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesBegan(touches, with: event)
+        self.touches = self.touches.union(touches)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesEnded(touches, with: event)
+        self.touches = self.touches.subtracting(touches)
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesCancelled(touches, with: event)
+        self.touches = self.touches.subtracting(touches)
     }
     
     private func velocity(touch: Int?) -> CGPoint {

@@ -60,8 +60,8 @@ extension Gestures {
             self.wrapped = wrapped
         }
         
-        public func recognize(gesture: GestureContext, state: inout Wrapped.State) -> GestureState {
-            wrapped.recognize(gesture: gesture, state: &state)
+        public func recognize(context: GestureContext, state: inout Wrapped.State) -> GestureState {
+            wrapped.recognize(context: context, state: &state)
         }
     }
 }

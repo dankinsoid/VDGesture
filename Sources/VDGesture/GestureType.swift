@@ -11,14 +11,14 @@ public protocol GestureType {
     associatedtype State
     var initialState: State { get }
     var config: GestureConfig { get }
-    func recognize(gesture: GestureContext, state: inout State) -> GestureState
+    func recognize(context: GestureContext, state: inout State) -> GestureState
     func any() -> AnyGesture
 }
 
 extension GestureType {
     
-    public func reduce(gesture: GestureContext, state: inout State) -> GestureState {
-        let result = recognize(gesture: gesture, state: &state)
+    public func reduce(context: GestureContext, state: inout State) -> GestureState {
+        let result = recognize(context: context, state: &state)
         if result == .finished || result == .failed {
             state = initialState
         }
@@ -52,7 +52,7 @@ extension GestureType where Self: ComposedGesture, State == Body.State {
         body.initialState
     }
     
-    public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-        body.recognize(gesture: gesture, state: &state)
+    public func recognize(context: GestureContext, state: inout State) -> GestureState {
+        body.recognize(context: context, state: &state)
     }
 }

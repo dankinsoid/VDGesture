@@ -1,39 +1,37 @@
 //
-//  Press.swift
-//  VDKitFix
+//  File.swift
+//  
 //
-//  Created by Данил Войдилов on 27.07.2021.
+//  Created by Данил Войдилов on 03.08.2021.
 //
 
-import Foundation
+import UIKit
 
-public enum Gestures {
+extension Gestures {
     
-    public struct Press: GestureType {
-        public var initialState: State { State() }
-        public var config: GestureConfig { .init() }
+    public struct Press: ComposedGesture {
+        public var minDuration: TimeInterval
+        public var maxLength: CGFloat
+        public var force: CGFloat?
         
-        public init() {}
-        
-        public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-            switch gesture.state {
-            case .began, .changed:
-                state.wasValid = true
-                return .valid
-            case .possible:
-                return .none
-            case .ended:
-                return .finished
-            case .cancelled, .failed:
-                gesture.debugFail(of: Self.self, reason: "Failed")
-                return .failed
-            @unknown default:
-                return .failed
+        public var body: Gestures.Length<Gestures.Or<Gestures.Pare<Gestures.Duration<Gestures.Pan, ClosedRange<TimeInterval>>, OptionalGesture<PareSingleGesture<Gestures.Instant<Gestures.Force<Gestures.Pan, PartialRangeFrom<CGFloat>>>, Void>, Void>, Void>>> {
+            Gestures.Or {
+                Gestures.Pan()
+                    .duration(minDuration...minDuration, finish: true)
+                
+                if let force = force {
+                    Gestures.Pan()
+                        .force(force...)
+                        .instant()
+                }
             }
+            .maxLength(CGPoint(x: maxLength, y: maxLength))
         }
         
-        public struct State {
-            public var wasValid: Bool = false
+        public init(minDuration: TimeInterval = 0.5, minForce: CGFloat? = 4.5, maxLength: CGFloat = 20) {
+            self.minDuration = minDuration
+            self.maxLength = maxLength
+            self.force = minForce
         }
     }
 }

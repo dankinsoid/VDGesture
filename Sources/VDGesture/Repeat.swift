@@ -39,8 +39,8 @@ extension Gestures {
             self.interval = .init()
         }
         
-        public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-            let result = wrapped.reduce(gesture: gesture, state: &state.wrapped)
+        public func recognize(context: GestureContext, state: inout State) -> GestureState {
+            let result = wrapped.reduce(context: context, state: &state.wrapped)
             if result == .failed || result == .finished {
                 state.wrapped = wrapped.initialState
             }
@@ -52,7 +52,7 @@ extension Gestures {
                 state.didStart = false
                 state.lastTime = Date()
                 if let max = interval.max {
-                    gesture.update(after: max)
+                    context.update(after: max)
                 }
                 if state.completed == count {
                     return .finished
@@ -63,7 +63,7 @@ extension Gestures {
                 if !state.didStart, let time = state.lastTime {
                     let duration = Date().timeIntervalSince(time)
                     if !interval.contains(duration) {
-                        gesture.debugFail(of: Self.self, reason: "Incorrect interval: \(duration)")
+                        context.debugFail(of: Self.self, reason: "Incorrect interval: \(duration)")
                         return .failed
                     } else {
                         return .valid
@@ -75,7 +75,7 @@ extension Gestures {
                 if let time = state.lastTime, !state.didStart, let max = interval.max {
                     let duration = Date().timeIntervalSince(time)
                     if duration > max {
-                        gesture.debugFail(of: Self.self, reason: "Too long wait: \(duration)")
+                        context.debugFail(of: Self.self, reason: "Too long wait: \(duration)")
                         return .failed
                     } else {
                         return .valid

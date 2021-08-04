@@ -28,18 +28,18 @@ public struct EitherGesture<First: GestureType, Second: GestureType, Substate>: 
         self.initialSubstate = initialSubstate
     }
     
-    public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
+    public func recognize(context: GestureContext, state: inout State) -> GestureState {
         switch (self.gesture, state.state) {
         case (.first(let first), .first(var firstState)):
-            let result =  first.recognize(gesture: gesture, state: &firstState)
+            let result =  first.recognize(context: context, state: &firstState)
             state.state = .first(firstState)
             return result
         case (.second(let second), .second(var secondState)):
-            let result =  second.recognize(gesture: gesture, state: &secondState)
+            let result =  second.recognize(context: context, state: &secondState)
             state.state = .second(secondState)
             return result
         default:
-            gesture.debugFail(of: Self.self, reason: "Imposible state")
+            context.debugFail(of: Self.self, reason: "Impossible state")
             return .failed
         }
     }

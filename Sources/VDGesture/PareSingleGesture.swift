@@ -18,8 +18,8 @@ public struct PareSingleGesture<Wrapped: GestureType, Substate>: PareGestureType
         self.initialSubstate = initialSubstate
     }
     
-    public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-        wrapped.recognize(gesture: gesture, state: &state.wrapped)
+    public func recognize(context: GestureContext, state: inout State) -> GestureState {
+        wrapped.recognize(context: context, state: &state.wrapped)
     }
     
     public struct State: StateWithSubstate {

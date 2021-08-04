@@ -32,18 +32,15 @@ extension Gestures {
             self.interval = AnyRange()
         }
         
-        public func recognize(gesture: GestureContext, state: inout Base.State) -> GestureState {
+        public func recognize(context: GestureContext, state: inout Base.State) -> GestureState {
             state.substate.interval = interval
-            return base.recognize(gesture: gesture, state: &state)
+            return base.recognize(context: context, state: &state)
         }
         
-        public static func recognize<First: GestureType, Second: GestureType>(_ first: First, _ second: Second, context: GestureContext, state: inout Gestures.Pare<First, Second, Substate>.State) -> GestureState {
+        public static func recognize<First: GestureType, Second: GestureType>(_ first: First, _ second: Second, context: GestureContext, state: inout Gestures.Pare<First, Second, SequenceSubstate>.State) -> GestureState {
             switch state.substate.firstTime {
             case nil:
-                let result = first.reduce(gesture: context, state: &state.first)
-                if result == .failed || result == .finished {
-                    state.first = first.initialState
-                }
+                let result = first.reduce(context: context, state: &state.first)
                 if result == .finished {
                     state.substate.firstTime = Date()
                     if let maxInterval = state.substate.interval.max {
@@ -53,7 +50,7 @@ extension Gestures {
                 }
                 return result
             case .some(let time):
-                let result = second.reduce(gesture: context, state: &state.second)
+                let result = second.reduce(context: context, state: &state.second)
                 if result != .failed, result != .finished, !state.substate.secondStarted {
                     let interval = Date().timeIntervalSince(time)
                     if result == .valid {

@@ -12,7 +12,7 @@ public struct AnyGesture: GestureType {
     public var config: GestureConfig
     private var _recognize: (GestureContext, inout Any) -> GestureState
     
-    init<G: GestureType>(_ gesture: G) {
+    public init<G: GestureType>(_ gesture: G) {
         config = gesture.config
         initialState = gesture.initialState
         _recognize = {
@@ -20,14 +20,14 @@ public struct AnyGesture: GestureType {
                 $0.debugFail(of: Self.self, reason: "Incorrect state")
                 return .failed
             }
-            let result = gesture.recognize(gesture: $0, state: &state)
+            let result = gesture.recognize(context: $0, state: &state)
             $1 = state
             return result
         }
     }
     
-    public func recognize(gesture: GestureContext, state: inout Any) -> GestureState {
-        _recognize(gesture, &state)
+    public func recognize(context: GestureContext, state: inout Any) -> GestureState {
+        _recognize(context, &state)
     }
     
     public func any() -> AnyGesture {

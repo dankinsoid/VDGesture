@@ -40,6 +40,12 @@ extension GestureType {
     public func onRecognise(_ action: @escaping () -> Void) -> Gestures.Handler<Self> {
         Gestures.Handler(wrapped: self, onRecognise: { _ in action() })
     }
+    
+    public func on(if condition: @escaping (GestureContext) -> Bool, then trueAction: @escaping () -> Void, else falseAction: @escaping () -> Void) -> Gestures.Handler<Self> {
+        Gestures.Handler(wrapped: self, onChange: {
+            if condition($0) { trueAction() } else { falseAction() }
+        })
+    }
 }
 
 extension Gestures {
@@ -54,18 +60,18 @@ extension Gestures {
         public var config: GestureConfig { wrapped.config }
         public var initialState: State { State(wrapped: wrapped.initialState) }
         
-        public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-            let result = wrapped.recognize(gesture: gesture, state: &state.wrapped)
+        public func recognize(context: GestureContext, state: inout State) -> GestureState {
+            let result = wrapped.recognize(context: context, state: &state.wrapped)
             switch result {
             case .failed:
-                onFail?(gesture)
+                onFail?(context)
             case .finished:
-                onRecognise?(gesture)
+                onRecognise?(context)
             case .valid:
                 if !state.wasBegun, onBegin != nil {
-                    onBegin?(gesture)
+                    onBegin?(context)
                 } else {
-                    onChange?(gesture)
+                    onChange?(context)
                 }
                 state.wasBegun = true
             case .none:

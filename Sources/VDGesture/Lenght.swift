@@ -32,30 +32,30 @@ extension Gestures {
             self.failOnExcess = failOnExcess
         }
         
-        public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-            let result = wrapped.recognize(gesture: gesture, state: &state.wrapped)
+        public func recognize(context: GestureContext, state: inout State) -> GestureState {
+            let result = wrapped.recognize(context: context, state: &state.wrapped)
             guard result != .failed else { return .failed }
-            if result == .valid, state.startLocation == nil, gesture.state != .possible {
-                state.startLocation = gesture.location()
+            if result == .valid, state.startLocation == nil, context.state != .possible {
+                state.startLocation = context.location()
                 return .valid
             }
-            guard let startLocation = state.startLocation, result != .none, gesture.state != .possible else {
+            guard let startLocation = state.startLocation, result != .none, context.state != .possible else {
                 return .none
             }
-            let location = gesture.location()
+            let location = context.location()
             state.maxDistance = CGPoint(
                 x: Swift.max(state.maxDistance.x, abs(startLocation.x - location.x)),
                 y: Swift.max(state.maxDistance.y, abs(startLocation.y - location.y))
             )
             if result == .finished {
                 if state.maxDistance.x < min.x || state.maxDistance.y < min.y {
-                    gesture.debugFail(of: Self.self, reason: "Too small movement")
+                    context.debugFail(of: Self.self, reason: "Too small movement")
                     return .failed
                 }
             }
             if state.maxDistance.x > max.x || state.maxDistance.y > max.y {
                 if failOnExcess {
-                    gesture.debugFail(of: Self.self, reason: "Too large movement \(state.maxDistance)")
+                    context.debugFail(of: Self.self, reason: "Too large movement \(state.maxDistance)")
                 }
                 return failOnExcess ? .failed : .finished
             }

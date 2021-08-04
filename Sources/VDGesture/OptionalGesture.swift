@@ -18,11 +18,11 @@ public struct OptionalGesture<Wrapped: GestureType, Substate>: PareGestureType {
         self.initialSubstate = initialSubstate
     }
     
-    public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
+    public func recognize(context: GestureContext, state: inout State) -> GestureState {
         guard var wrappedState = state.wrapped else {
             return .none
         }
-        let result = wrapped?.recognize(gesture: gesture, state: &wrappedState) ?? .none
+        let result = wrapped?.recognize(context: context, state: &wrappedState) ?? .none
         state.wrapped = wrappedState
         return result
     }

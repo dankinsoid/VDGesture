@@ -47,8 +47,8 @@ extension Gestures {
             }
         }
         
-        public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-            _recognize(first, second, gesture, &state)
+        public func recognize(context: GestureContext, state: inout State) -> GestureState {
+            _recognize(first, second, context, &state)
         }
         
         public struct State: StateWithSubstate {

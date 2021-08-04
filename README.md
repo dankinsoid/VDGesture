@@ -28,7 +28,7 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/VDGesture.git", from: "0.3.0")
+    .package(url: "https://github.com/dankinsoid/VDGesture.git", from: "0.4.0")
   ],
   targets: [
     .target(name: "SomeProject", dependencies: ["VDGesture"])

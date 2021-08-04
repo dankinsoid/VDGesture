@@ -9,8 +9,8 @@ import Foundation
 
 extension GestureType {
     
-    public func duration<R: RangeExpression>(_ range: R, finishOnTouchUp: Bool = false) -> Gestures.Duration<Self, R> where R.Bound == TimeInterval {
-        Gestures.Duration(self, in: range, finishOnTouchUp: finishOnTouchUp)
+    public func duration<R: RangeExpression>(_ range: R, finish: Bool = false) -> Gestures.Duration<Self, R> where R.Bound == TimeInterval {
+        Gestures.Duration(self, in: range, finish: finish)
     }
 }
 
@@ -19,21 +19,21 @@ extension Gestures {
     public struct Duration<Wrapped: GestureType, R: RangeExpression>: GestureType where R.Bound == TimeInterval {
         public var range: R
         public var wrapped: Wrapped
-        public var finishOnTouchUp: Bool
         public var initialState: State { State(wrapped: wrapped.initialState) }
         public var config: GestureConfig { wrapped.config }
+        public var finish: Bool
         
-        public init(_ wrapped: Wrapped, in range: R, finishOnTouchUp: Bool = false) {
+        public init(_ wrapped: Wrapped, in range: R, finish: Bool) {
             self.range = range
             self.wrapped = wrapped
-            self.finishOnTouchUp = finishOnTouchUp
+            self.finish = finish
         }
         
-        public func recognize(gesture: GestureContext, state: inout State) -> GestureState {
-            let wrappedResult = wrapped.recognize(gesture: gesture, state: &state.wrapped)
+        public func recognize(context: GestureContext, state: inout State) -> GestureState {
+            let wrappedResult = wrapped.recognize(context: context, state: &state.wrapped)
             if wrappedResult == .valid && state.startDate == nil {
                 state.startDate = Date()
-                updateLater(context: gesture)
+                updateLater(context: context)
             }
             guard let date = state.startDate else {
                 return .none
@@ -46,35 +46,32 @@ extension Gestures {
                 if range.contains(interval) {
                     return .finished
                 } else {
-                    gesture.debugFail(of: Self.self, reason: "Incorrect interval \(interval)")
+                    context.debugFail(of: Self.self, reason: "Incorrect interval \(interval)")
                     return .failed
                 }
             case .valid:
                 let interval = Date().timeIntervalSince(date)
-                if range.contains(interval) {
-                    state.wasValid = true
-                    return .valid
-                } else if let max = range.max, max <= interval {
-                    if finishOnTouchUp {
-                        gesture.debugFail(of: Self.self, reason: "Too slow: \(interval)")
-                        return .failed
-                    } else {
+                if let max = range.max, max <= interval {
+                    if finish {
                         return .finished
+                    } else {
+                        context.debugFail(of: Self.self, reason: "Too slow: \(interval)")
+                        return .failed
                     }
-                } else {
-                    state.wasValid = true
-                    return .valid
                 }
+                state.wasValid = true
+                return .valid
             case .none:
+                state.startDate = nil
                 return .none
             }
         }
         
         private func updateLater(context: GestureContext) {
-            if let lower = range.min {
+            if let lower = range.min, lower > 0 {
                 context.update(after: lower)
             }
-            if let upper = range.max {
+            if let upper = range.max, upper != range.min, upper > 0 {
                 context.update(after: upper)
             }
         }

@@ -10,13 +10,18 @@ import UIKit
 extension Gestures {
     
     public struct Tap: ComposedGesture {
+        public var duration: TimeInterval
+        public var maxLength: CGFloat
         
-        public var body: Gestures.Duration<Gestures.Length<Gestures.Press>, PartialRangeThrough<TimeInterval>> {
-            Press()
-                .maxLength(CGPoint(x: 20, y: 20))
-                .duration(...0.3, finishOnTouchUp: true)
+        public var body: Gestures.Duration<Gestures.Length<Gestures.Pan>, PartialRangeThrough<TimeInterval>> {
+            Pan()
+                .maxLength(CGPoint(x: maxLength, y: maxLength))
+                .duration(...duration)
         }
         
-        public init() {}
+        public init(duration: TimeInterval = 0.3, maxLength: CGFloat = 20) {
+            self.duration = duration
+            self.maxLength = maxLength
+        }
     }
 }

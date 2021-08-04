@@ -36,6 +36,10 @@ public struct GestureContext {
         recognizer.velocity(of: touch)
     }
     
+    public var force: CGFloat {
+        recognizer.touches.first?.force ?? 0
+    }
+    
     public var velocity: CGPoint {
         recognizer.velocity()
     }
