@@ -9,9 +9,11 @@ import UIKit
 
 public protocol GestureType {
     associatedtype State
+    associatedtype Property = Void
     var initialState: State { get }
     var config: GestureConfig { get }
     func recognize(context: GestureContext, state: inout State) -> GestureState
+    func property(context: GestureContext, state: State) -> Property
     func any() -> AnyGesture
 }
 
@@ -30,9 +32,16 @@ extension GestureType {
     }
 }
 
+extension GestureType where Property == Void {
+    public func property(context: GestureContext, state: State) -> Property {
+        ()
+    }
+}
+
 public protocol ComposedGesture: GestureType {
     associatedtype Body: GestureType
     override associatedtype State = Body.State
+    override associatedtype Property = Body.Property
     var body: Body { get }
 }
 

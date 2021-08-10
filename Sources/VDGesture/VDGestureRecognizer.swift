@@ -19,6 +19,7 @@ extension UIView {
 
 protocol UpdatableRecognizer: UIGestureRecognizer {
     var touches: Set<Touch> { get }
+    var currentState: GestureState { get }
     func update(after interval: TimeInterval)
     func set(debugRemark: String)
 }
@@ -32,6 +33,8 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
     private var isFinished = false
     private var timers: [Timer] = []
     var touches: Set<Touch> = []
+    var currentState: GestureState = .none
+    
     private var context: GestureContext {
         GestureContext(recognizer: self, touch: touches.filter({ $0.phase != .cancelled && $0.phase != .ended }).sorted(by: { $0.beginTimestamp < $1.beginTimestamp }).first)
     }
@@ -61,7 +64,8 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
                 return
             }
         }
-        switch gesture.reduce(context: context, state: &gestureState) {
+        currentState = gesture.reduce(context: context, state: &gestureState)
+        switch currentState {
         case .valid:
             touches.forEach {
                 $0.previousTimestamp = Date().timeIntervalSince1970
@@ -76,6 +80,7 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
             isFinished = true
             isEnabled = false
             isEnabled = true
+            currentState = .none
         }
     }
     

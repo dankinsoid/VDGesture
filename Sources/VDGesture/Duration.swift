@@ -81,5 +81,9 @@ extension Gestures {
             public var startDate: Date?
             public var wasValid: Bool = false
         }
+        
+        public func property(context: GestureContext, state: State) -> Wrapped.Property {
+            wrapped.property(context: context, state: state.wrapped)
+        }
     }
 }

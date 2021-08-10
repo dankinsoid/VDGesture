@@ -51,6 +51,10 @@ extension Gestures {
             _recognize(first, second, context, &state)
         }
         
+        public func property(context: GestureContext, state: State) -> (First.Property, Second.Property) {
+            (first.property(context: context, state: state.first), second.property(context: context, state: state.second))
+        }
+        
         public struct State: StateWithSubstate {
             public var first: First.State
             public var second: Second.State

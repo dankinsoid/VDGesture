@@ -80,6 +80,10 @@ extension Gestures {
             }
         }
         
+        public func property(context: GestureContext, state: State) -> Wrapped.Property {
+            wrapped.property(context: context, state: state.wrapped)
+        }
+        
         public struct State {
             public var wrapped: Wrapped.State
             public var wasValidCounter = 0

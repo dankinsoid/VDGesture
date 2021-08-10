@@ -27,6 +27,10 @@ public struct OptionalGesture<Wrapped: GestureType, Substate>: PareGestureType {
         return result
     }
     
+    public func property(context: GestureContext, state: State) -> Wrapped.Property? {
+        state.wrapped.flatMap { wrapped?.property(context: context, state: $0) }
+    }
+    
     public struct State: StateWithSubstate {
         public var wrapped: Wrapped.State?
         public var substate: Substate

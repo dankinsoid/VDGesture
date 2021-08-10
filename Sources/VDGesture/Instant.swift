@@ -29,5 +29,9 @@ extension Gestures {
             case .none:             return .none
             }
         }
+        
+        public func property(context: GestureContext, state: Wrapped.State) -> Wrapped.Property {
+            wrapped.property(context: context, state: state)
+        }
     }
 }

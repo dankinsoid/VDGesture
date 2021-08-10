@@ -10,6 +10,7 @@ import UIKit
 extension Gestures {
     
     public struct Press: ComposedGesture {
+        
         public var minDuration: TimeInterval
         public var maxLength: CGFloat
         public var force: CGFloat?
@@ -26,6 +27,10 @@ extension Gestures {
                 }
             }
             .maxLength(CGPoint(x: maxLength, y: maxLength))
+        }
+        
+        public func property(context: GestureContext, state: Body.State) -> (Void, Void?) {
+            ((), nil)
         }
         
         public init(minDuration: TimeInterval = 0.5, minForce: CGFloat? = 4.5, maxLength: CGFloat = 20) {

@@ -35,6 +35,10 @@ extension Gestures {
             base.recognize(context: context, state: &state)
         }
         
+        public func property(context: GestureContext, state: Base.State) -> Base.Property {
+            base.property(context: context, state: state)
+        }
+        
         public static func recognize<First: GestureType, Second: GestureType>(_ first: First, _ second: Second, context: GestureContext, state: inout Gestures.Pare<First, Second, Void>.State) -> GestureState {
             let (firstState, secondState) = (
                 first.reduce(context: context, state: &state.first),

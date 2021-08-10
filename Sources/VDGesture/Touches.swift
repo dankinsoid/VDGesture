@@ -84,6 +84,12 @@ extension CGVector {
     }
 }
 
+extension CGPoint {
+    public func distance(to point: CGPoint) -> CGFloat {
+        CGVector(dx: x - point.x, dy: y - point.y).length
+    }
+}
+
 extension UITouch.Phase: CustomStringConvertible {
     public var description: String {
         switch self {

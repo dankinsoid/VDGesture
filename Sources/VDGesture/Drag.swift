@@ -16,7 +16,7 @@ public enum Gestures {
         public init() {}
         
         public func recognize(context: GestureContext, state: inout State) -> GestureState {
-            switch context.state {
+            switch context.uiGestureState {
             case .began, .changed:
                 state.wasValid = true
                 return .valid
@@ -46,4 +46,5 @@ public enum Gestures {
 //UIRotationGestureRecognizer
 //UISwipeGestureRecognizer
 //UIScreenEdgePanGestureRecognizer
+
 //UIHoverGestureRecognizer

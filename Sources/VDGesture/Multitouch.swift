@@ -7,6 +7,12 @@
 
 import Foundation
 
+extension GestureType {
+    public func multitouch(_ count: Int) -> Gestures.Multitouch {
+        Gestures.Multitouch(self, count: count)
+    }
+}
+
 extension Gestures {
     
     public struct Multitouch: GestureType {
@@ -54,7 +60,6 @@ extension Gestures {
             state.started = state.started.union(states.filter({ $0.1 == .valid }).map { $0.0.beginTimestamp })
             state.completed = state.completed.union(states.filter({ $0.1 == .finished }).map { $0.0.beginTimestamp })
             state.failed = state.failed.union(states.filter({ $0.1 == .failed }).map { $0.0.beginTimestamp })
-            print(context.touches.count, states.map { $0.1 }, state.started.count, state.completed.count, state.failed.count)
             if !state.failed.isEmpty {
                 return .failed
             }
@@ -64,7 +69,7 @@ extension Gestures {
             if state.completed.count >= children.count {
                 return .finished
             }
-            return state.started.isEmpty ? .none : .valid
+            return state.started.count >= children.count ? .valid : .none
         }
         
         public struct State {

@@ -22,6 +22,10 @@ public struct PareSingleGesture<Wrapped: GestureType, Substate>: PareGestureType
         wrapped.recognize(context: context, state: &state.wrapped)
     }
     
+    public func property(context: GestureContext, state: State) -> Wrapped.Property {
+        wrapped.property(context: context, state: state.wrapped)
+    }
+    
     public struct State: StateWithSubstate {
         public var wrapped: Wrapped.State
         public var substate: Substate

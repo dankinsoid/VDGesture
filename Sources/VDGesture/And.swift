@@ -51,6 +51,10 @@ extension Gestures {
                 return .none
             }
         }
+        
+        public func property(context: GestureContext, state: Base.State) -> Base.Property {
+            base.property(context: context, state: state)
+        }
     }
     
     public struct AndState {

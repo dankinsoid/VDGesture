@@ -35,11 +35,11 @@ extension Gestures {
         public func recognize(context: GestureContext, state: inout State) -> GestureState {
             let result = wrapped.recognize(context: context, state: &state.wrapped)
             guard result != .failed else { return .failed }
-            if result == .valid, state.startLocation == nil, context.state != .possible {
+            if result == .valid, state.startLocation == nil, context.uiGestureState != .possible {
                 state.startLocation = context.location
                 return .valid
             }
-            guard let startLocation = state.startLocation, result != .none, context.state != .possible else {
+            guard let startLocation = state.startLocation, result != .none, context.uiGestureState != .possible else {
                 return .none
             }
             let location = context.location
@@ -60,6 +60,10 @@ extension Gestures {
                 return failOnExcess ? .failed : .finished
             }
             return result
+        }
+        
+        public func property(context: GestureContext, state: State) -> Wrapped.Property {
+            wrapped.property(context: context, state: state.wrapped)
         }
         
         public struct State {

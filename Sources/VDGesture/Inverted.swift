@@ -37,5 +37,9 @@ extension Gestures {
             case .none: return .valid
             }
         }
+        
+        public func property(context: GestureContext, state: State) -> Wrapped.Property {
+            wrapped.property(context: context, state: state)
+        }
     }
 }

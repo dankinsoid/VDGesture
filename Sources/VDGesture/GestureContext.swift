@@ -11,7 +11,8 @@ public struct GestureContext {
     var recognizer: UpdatableRecognizer
     let touch: Touch?
     
-    public var state: UIGestureRecognizer.State { recognizer.state }
+    public var uiGestureState: UIGestureRecognizer.State { recognizer.state }
+    public var state: GestureState { recognizer.currentState }
     
     public var touches: [Touch] {
         recognizer.touches.sorted(by: { $0.beginTimestamp < $1.beginTimestamp })
