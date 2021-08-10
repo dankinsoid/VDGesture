@@ -18,10 +18,8 @@ extension UIView {
 }
 
 protocol UpdatableRecognizer: UIGestureRecognizer {
-    var touches: Set<UITouch> { get }
+    var touches: Set<Touch> { get }
     func update(after interval: TimeInterval)
-    func velocity() -> CGPoint
-    func velocity(of touch: Int) -> CGPoint
     func set(debugRemark: String)
 }
 
@@ -32,11 +30,10 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
     private var debugFile: String
     private var debugLine: UInt
     private var isFinished = false
-    private var lastLocations: [Int?: TouchLocation] = [:]
     private var timers: [Timer] = []
-    var touches: Set<UITouch> = []
+    var touches: Set<Touch> = []
     private var context: GestureContext {
-        GestureContext(recognizer: self)
+        GestureContext(recognizer: self, touch: touches.sorted(by: { $0.beginTimestamp < $1.beginTimestamp }).first)
     }
     
     init(_ gesture: Gesture, file: String, line: UInt) {
@@ -66,12 +63,9 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
         }
         switch gesture.reduce(context: context, state: &gestureState) {
         case .valid:
-            lastLocations = [:]
-            lastLocations[nil] = TouchLocation(point: location(in: nil), time: Date())
-            if numberOfTouches > 0 {
-                (0..<numberOfTouches).forEach {
-                    lastLocations[$0] = TouchLocation(point: location(ofTouch: $0, in: nil), time: Date())
-                }
+            touches.forEach {
+                $0.previousTimestamp = Date().timeIntervalSince1970
+                $0.prevLocation = $0.uiTouch.location(in: nil)
             }
         case .none:
             break
@@ -79,7 +73,6 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
             timers.forEach { $0.invalidate() }
             timers = []
             touches = []
-            lastLocations = [:]
             isFinished = true
             isEnabled = false
             isEnabled = true
@@ -99,39 +92,38 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
         }
     }
     
-    func velocity() -> CGPoint {
-        velocity(touch: nil)
-    }
-    
-    func velocity(of touch: Int) -> CGPoint {
-        velocity(touch: touch)
-    }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
         super.touchesBegan(touches, with: event)
-        self.touches = self.touches.union(touches)
+        update(touches: touches, remove: false)
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        update(touches: touches, remove: false)
+    }
+    
+    override func touchesEstimatedPropertiesUpdated(_ touches: Set<UITouch>) {
+        update(touches: touches, remove: false)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
         super.touchesEnded(touches, with: event)
-        self.touches = self.touches.subtracting(touches)
+        update(touches: touches, remove: true)
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
         super.touchesCancelled(touches, with: event)
-        self.touches = self.touches.subtracting(touches)
+        update(touches: touches, remove: true)
     }
     
-    private func velocity(touch: Int?) -> CGPoint {
-        guard let last = lastLocations[touch] else { return .zero }
-        let time = Date()
-        let duration = CGFloat(time.timeIntervalSince(last.time))
-        guard duration > 0 else { return .zero }
-        let windowLocation = touch.map { location(ofTouch: $0, in: nil) } ?? location(in: nil)
-        return CGPoint(
-            x: (windowLocation.x - last.point.x) / duration,
-            y: (windowLocation.y - last.point.y) / duration
-        )
+    private func update(touches: Set<UITouch>, remove: Bool) {
+        let newTouches = touches.map { touch in
+            self.touches.first(where: { $0.uiTouch == touch }) ?? Touch(touch)
+        }
+        if remove {
+            self.touches = self.touches.subtracting(newTouches).filter({ $0.phase != .ended && $0.phase != .cancelled })
+        } else {
+            self.touches = self.touches.union(newTouches).filter({ $0.phase != .ended && $0.phase != .cancelled })
+        }
     }
  
     func set(debugRemark: String) {

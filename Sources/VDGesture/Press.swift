@@ -14,13 +14,13 @@ extension Gestures {
         public var maxLength: CGFloat
         public var force: CGFloat?
         
-        public var body: Gestures.Length<Gestures.Or<Gestures.Pare<Gestures.Duration<Gestures.Pan, ClosedRange<TimeInterval>>, OptionalGesture<PareSingleGesture<Gestures.Instant<Gestures.Force<Gestures.Pan, PartialRangeFrom<CGFloat>>>, Void>, Void>, Void>>> {
+        public var body: Gestures.Length<Gestures.Or<Gestures.Pare<Gestures.Duration<Gestures.Drag, ClosedRange<TimeInterval>>, OptionalGesture<PareSingleGesture<Gestures.Instant<Gestures.Force<Gestures.Drag, PartialRangeFrom<CGFloat>>>, Void>, Void>, Void>>> {
             Gestures.Or {
-                Gestures.Pan()
+                Gestures.Drag()
                     .duration(minDuration...minDuration, finish: true)
                 
                 if let force = force {
-                    Gestures.Pan()
+                    Gestures.Drag()
                         .force(force...)
                         .instant()
                 }

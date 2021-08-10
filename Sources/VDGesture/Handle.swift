@@ -70,9 +70,8 @@ extension Gestures {
             case .valid:
                 if !state.wasBegun, onBegin != nil {
                     onBegin?(context)
-                } else {
-                    onChange?(context)
                 }
+                onChange?(context)
                 state.wasBegun = true
             case .none:
                 return .none

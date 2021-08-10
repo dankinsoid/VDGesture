@@ -9,7 +9,7 @@ import Foundation
 
 public enum Gestures {
     
-    public struct Pan: GestureType {
+    public struct Drag: GestureType {
         public var initialState: State { State() }
         public var config: GestureConfig { .init() }
         
@@ -39,11 +39,11 @@ public enum Gestures {
 }
 
 //UITapGestureRecognizer
+//UIPanGestureRecognizer
+//UILongPressGestureRecognizer
+
 //UIPinchGestureRecognizer
 //UIRotationGestureRecognizer
 //UISwipeGestureRecognizer
-
-//UIPanGestureRecognizer
 //UIScreenEdgePanGestureRecognizer
-//UILongPressGestureRecognizer
 //UIHoverGestureRecognizer

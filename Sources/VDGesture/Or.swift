@@ -41,10 +41,14 @@ extension Gestures {
                 second.reduce(context: context, state: &state.second)
             )
             switch (firstState, secondState) {
-            case (.finished, _), (_, .finished):        return .finished
-            case (.valid, _), (_, .valid):              return .valid
-            case (.failed, .none), (.none, .failed), (.failed, .failed):    return .failed
-            default:                                    return .none
+            case (.finished, _), (_, .finished):
+                return .finished
+            case (.valid, _), (_, .valid):
+                return .valid
+            case (.failed, .none), (.none, .failed), (.failed, .failed):
+                return .failed
+            default:
+                return .none
             }
         }
     }

@@ -13,8 +13,8 @@ extension Gestures {
         public var duration: TimeInterval
         public var maxLength: CGFloat
         
-        public var body: Gestures.Duration<Gestures.Length<Gestures.Pan>, PartialRangeThrough<TimeInterval>> {
-            Pan()
+        public var body: Gestures.Duration<Gestures.Length<Gestures.Drag>, PartialRangeThrough<TimeInterval>> {
+            Drag()
                 .maxLength(CGPoint(x: maxLength, y: maxLength))
                 .duration(...duration)
         }
