@@ -33,7 +33,7 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
     private var timers: [Timer] = []
     var touches: Set<Touch> = []
     private var context: GestureContext {
-        GestureContext(recognizer: self, touch: touches.sorted(by: { $0.beginTimestamp < $1.beginTimestamp }).first)
+        GestureContext(recognizer: self, touch: touches.filter({ $0.phase != .cancelled && $0.phase != .ended }).sorted(by: { $0.beginTimestamp < $1.beginTimestamp }).first)
     }
     
     init(_ gesture: Gesture, file: String, line: UInt) {
@@ -119,11 +119,7 @@ final class VDGestureRecognizer<Gesture: GestureType>: UILongPressGestureRecogni
         let newTouches = touches.map { touch in
             self.touches.first(where: { $0.uiTouch == touch }) ?? Touch(touch)
         }
-        if remove {
-            self.touches = self.touches.subtracting(newTouches).filter({ $0.phase != .ended && $0.phase != .cancelled })
-        } else {
-            self.touches = self.touches.union(newTouches).filter({ $0.phase != .ended && $0.phase != .cancelled })
-        }
+        self.touches = self.touches.union(newTouches)
     }
  
     func set(debugRemark: String) {

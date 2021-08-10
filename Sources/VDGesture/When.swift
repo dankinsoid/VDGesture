@@ -26,7 +26,7 @@ extension GestureType {
         }
     }
     
-    public func when<R: RangeExpression>(_ value: @escaping (GestureContext) -> R.Bound, in range: R, onFalse executionType: Gestures.ExecutionType = .fail) ->Gestures.When<Self> {
+    public func when<R: RangeExpression>(_ value: @escaping (GestureContext) -> R.Bound, in range: R, onFalse executionType: Gestures.ExecutionType = .fail) -> Gestures.When<Self> {
         when(onFalse: executionType) {
             range.contains(value($0))
         }

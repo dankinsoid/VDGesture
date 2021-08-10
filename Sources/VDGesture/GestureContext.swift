@@ -35,6 +35,7 @@ public struct GestureContext {
 }
 
 public extension GestureContext {
+    var beginTimestamp: Double { touch?.beginTimestamp ?? 0 }
     var majorRadius: CGFloat { touch?.majorRadius ?? 0 }
     var majorRadiusTolerance: CGFloat { touch?.majorRadiusTolerance ?? 0 }
     var window: UIWindow? { touch?.window }
