@@ -85,8 +85,8 @@ extension Gestures {
             }
         }
         
-        public func property(context: GestureContext, state: State) -> Wrapped.Property {
-            wrapped.property(context: context, state: state.wrapped)
+        public func property(context: GestureContext, state: State) -> (Int, Wrapped.Property) {
+            (state.completed, wrapped.property(context: context, state: state.wrapped))
         }
         
         public struct State {

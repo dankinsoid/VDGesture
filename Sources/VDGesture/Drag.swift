@@ -41,8 +41,8 @@ public enum Gestures {
 //UITapGestureRecognizer
 //UIPanGestureRecognizer
 //UILongPressGestureRecognizer
-
 //UIPinchGestureRecognizer
+
 //UIRotationGestureRecognizer
 //UISwipeGestureRecognizer
 //UIScreenEdgePanGestureRecognizer
