@@ -9,6 +9,23 @@
 This repository contains new way to work with gestures
 
 ## Usage
+```swift
+ view.add {
+  Gestures.Sequence {
+    Gestures.Press()
+      .onChange { context, _ in
+        print("change press: \(context.location)")
+      }
+                
+    Gestures.Drag()
+      .when(in: someView)
+  }.onChange {
+    print("change")
+  }.onFinish {
+    print("on finish")
+  }
+}
+```
 ## Installation
 1.  [CocoaPods](https://cocoapods.org)
 
