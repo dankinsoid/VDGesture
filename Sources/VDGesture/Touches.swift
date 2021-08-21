@@ -78,18 +78,6 @@ public extension Touch {
     func azimuthUnitVector(in view: UIView?) -> CGVector { uiTouch.azimuthUnitVector(in: view) }
 }
 
-extension CGVector {
-    public var length: CGFloat {
-        sqrt(dx * dx + dy * dy)
-    }
-}
-
-extension CGPoint {
-    public func distance(to point: CGPoint) -> CGFloat {
-        CGVector(dx: x - point.x, dy: y - point.y).length
-    }
-}
-
 extension UITouch.Phase: CustomStringConvertible {
     public var description: String {
         switch self {
